@@ -30,3 +30,6 @@
 
 # Only executable file in this repo
 lsh
+
+# testing files
+test*
