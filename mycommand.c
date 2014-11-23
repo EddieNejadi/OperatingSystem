@@ -2,83 +2,163 @@
 #include <unistd.h>
 #include "parse.h"
 #include "mycommand.h"
+#include <unistd.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <stdbool.h>
 
+#include <sys/wait.h>
 // chaguos14
 extern char **environ;
 
-typedef struct b 
-{
-  pid_t pid_n;
-  struct b *next;
-  struct b *back;
-} Pros;
+// typedef struct b {
+//   pid_t pid_n;
+//   struct b *next;
+//   struct b *back;
+// } Pros;
 
 
 
-void runCommand(Command *cmd)
-{
+void runCommand(Command *cmd){
 	char **pl = cmd->pgm->pgmlist;
 	int bg = (int) cmd->bakground;
 	// printf ("%i\n", bg);
 	// printf("in runCommand\n");
-
-	int i;
+	// printf(" %s this the runCommand function\n", *pl);
 	Pgm *p = cmd->pgm;
-
-	char **s = p->pgmlist;
-	printf(" %s this the runCommand function\n", *s);
-	int pipefd[2];
-	pipe(pipefd);
-	pid_t pid;
-	signal(SIGCHLD, SIG_IGN);
-	pid = fork();
-	if (pid < 0)
+	char **ps = p->pgmlist;
+	int i;
+	bool int_out = true;
+	bool p_next = (p->next != NULL);
+	int pfds[10][2];
+	int pfd[2];	
+	pipe(pfd);
+	for (i = 0;; i++)
 	{
-		printf(stderr, "Fork failed");
-		return EXIT_FAILURE;
-	}
-	else if (pid == 0 ) 
-	{ // Child process
-		close(1);
-		dup(pipefd[1]);
-		close(pipefd[0]);
-		int result_t;
-		result_t = execvp(pl[0],pl);
-		if (result_t < 0) return EXIT_FAILURE;
-	}
-	else 
-	{ // Parent process
-		if (!bg){
-			close(0);
-			dup(pipefd[0]);
-			close(pipefd[1]);
-			char b[10] ={0};
-			int c=0;
-			wait(NULL);
-			execvp("wc", pl);
-			printf("Child is done\n");
-			// memset(pip_buf, 0 , sizeof(pip_buf));
-			int r = 0;
-			while (r = read(pipefd[0], b, 10) > 1)
+		if (i == 0)
+		{
+			pipe(pfds[i]);
+		}
+		pid_t pid;
+		signal(SIGCHLD, SIG_IGN);
+		pid = fork();
+		if (pid < 0){
+			printf(stderr, "Fork failed");
+			return 1;
+		}
+		else if (pid == 0 ) 
+		{ // Child process
+			printf("%s %i***\n", ps[0],i);
+			if (i == 0)
 			{
-				printf("in the while\n");
-			}
-				printf ("%s", b);
-			printf ("pip is red and write to pip_buf and result is %i\n", r);
+				close(1);
+				dup(pfd[1]);
+				close(0);
 
+			}
+			// else if (p_next)
+			// {
+			// 	close(STDOUT_FILENO);
+			// 	dup(pfds[i][STDOUT_FILENO]);
+			// 	close(STDIN_FILENO);
+			// 	dup(pfds[i-1][STDIN_FILENO]);
+			// }
+			else
+			{
+				close(0);
+				dup(pfd[0]);
+				// close();
+				// close(STDOUT_FILENO);
+			}
+			int result_t;
+			result_t = execvp(ps[0],ps);
+
+		}
+		if (p->next == NULL)
+		{
+			break;
 		}
 		else
-		{
-			printf("Child is on the background and running\n");
-				
+		{	
+			wait(NULL);
+			p = p ->next;
+			ps = p ->pgmlist;
 		}
 	}
+	 // Parent process
+	if (!bg){
+		wait(NULL);
+		printf("Child is done\n");
+	}
+	else
+	{
+		printf("Child is on the background and running\n");
+			
+	}
+
+}
+
+
+// void runCommand(Command *cmd)
+// {
+// 	char **pl = cmd->pgm->pgmlist;
+// 	int bg = (int) cmd->bakground;
+// 	// printf ("%i\n", bg);
+// 	// printf("in runCommand\n");
+
+// 	int i;
+// 	Pgm *p = cmd->pgm;
+
+// 	char **s = p->pgmlist;
+// 	printf(" %s this the runCommand function\n", *s);
+// 	int pipefd[2];
+// 	pipe(pipefd);
+// 	pid_t pid;
+// 	signal(SIGCHLD, SIG_IGN);
+// 	pid = fork();
+// 	if (pid < 0)
+// 	{
+// 		printf(stderr, "Fork failed");
+// 		return EXIT_FAILURE;
+// 	}
+// 	else if (pid == 0 ) 
+// 	{ // Child process
+// 		close(1);
+// 		dup(pipefd[1]);
+// 		close(pipefd[0]);
+// 		int result_t;
+// 		result_t = execvp(pl[0],pl);
+// 		if (result_t < 0) return EXIT_FAILURE;
+// 	}
+// 	else 
+// 	{ // Parent process
+// 		if (!bg){
+// 			close(0);
+// 			dup(pipefd[0]);
+// 			close(pipefd[1]);
+// 			char b[10] ={0};
+// 			int c=0;
+// 			wait(NULL);
+// 			execvp("wc", pl);
+// 			printf("Child is done\n");
+// 			// memset(pip_buf, 0 , sizeof(pip_buf));
+// 			int r = 0;
+// 			while (r = read(pipefd[0], b, 10) > 1)
+// 			{
+// 				printf("in the while\n");
+// 			}
+// 				printf ("%s", b);
+// 			printf ("pip is red and write to pip_buf and result is %i\n", r);
+
+// 		}
+// 		else
+// 		{
+// 			printf("Child is on the background and running\n");
+				
+// 		}
+// 	}
 
 	// int pipefd[10][2];
 	// char pip_buf[10000] = {0};
@@ -176,4 +256,4 @@ void runCommand(Command *cmd)
 
 	// 	p = p->next;
 	// }
-}
+// }
