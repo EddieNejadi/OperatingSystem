@@ -27,12 +27,7 @@ void runCommand(Command *cmd)
 	int bg = (int) cmd->bakground;
 	// printf ("%i\n", bg);
 	// printf("in runCommand\n");
-	Pros *root; 
-	root = (Pros *) malloc( sizeof(Pros) );
-	if (root < 0 ) return EXIT_FAILURE; 
-	root -> pid_n  = (pid_t) 0; // This is the first process which the Root process with pid 0 as our definition
-	root -> back = NULL;
-	root -> next = NULL;
+
 	int i;
 	Pgm *p = cmd->pgm;
 
@@ -65,24 +60,21 @@ void runCommand(Command *cmd)
 			close(pipefd[1]);
 			char b[10] ={0};
 			int c=0;
-			execlp("wc", "wc", "-l", NULL);
 			wait(NULL);
+			execvp("wc", pl);
 			printf("Child is done\n");
 			// memset(pip_buf, 0 , sizeof(pip_buf));
 			int r = 0;
 			while (r = read(pipefd[0], b, 10) > 1)
 			{
-				printf ("%s", *b);
+				printf("in the while\n");
 			}
+				printf ("%s", b);
 			printf ("pip is red and write to pip_buf and result is %i\n", r);
 
 		}
 		else
 		{
-			Pros *cp;
-			cp -> pid_n  = pid;
-			cp -> back = root;
-			cp -> next = NULL;
 			printf("Child is on the background and running\n");
 				
 		}
