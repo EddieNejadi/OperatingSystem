@@ -37,7 +37,7 @@ void runCommand(Command *cmd){
 	// int pfds[10][2];
 	int pfd[2];	
 	pipe(pfd);	
-	for (i = 0; p != NULL; i++)
+	for (i = 0;; i++)
 	{
 		// if (i == 0)
 		// {
