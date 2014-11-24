@@ -30,108 +30,181 @@ void runCommand(Command *cmd){
 	Pgm *p = cmd->pgm;
 	char **ps = p->pgmlist;
 	int i;
-	bool int_out = true;
-	bool buf_empty = true;
-	char buf [10000];
-	bool p_next = (p->next != NULL);
+	int res;
+	// bool int_out = true;
+	// bool buf_empty = true;
+	// char buf [10000];
+	// bool p_next = (p->next != NULL);
 	// int pfds[10][2];
 	int pfd[2];	
-	pipe(pfd);	
-	for (i = 0;; i++)
-	{
-		// if (i == 0)
-		// {
-		// 	pipe(pfds[i]);
-		// }
-		if (buf_empty) // Try to empty the buffer if it should be empty
-		{
-			memset(buf, 0, sizeof(buf));
-		}
-		pid_t pid;
-		signal(SIGCHLD, SIG_IGN);
-		pid = fork();
-		if (pid < 0){
-			printf(stderr, "Fork failed");
-			return 1;
-		}
-		else if (pid == 0 ) 
-		{ // Child process
-			printf("%s %i***\n", ps[0],i);
-			dup2(pfd[1], STDOUT_FILENO);
-			close(pfd[1]);
+	pipe(pfd);
+	// if (fork() > 0)
+	// {
+	// 	wait(NULL);
+	// }
+	// else
+	// {
+	// 	runCmds((cmd->pgm), pfd, 0);
+	// }
+		runCmds((cmd->pgm), pfd, 0);
+	// res = fork();
+	// if ( res < 0)
+	// 	{
+	// 		printf("Some kind of error occurred\n");;
+	// 	}
+	// else if (res == 0)
+	// {
+	// 	printf("in the child\n");
+	// }
+	// else{
+		// wait(NULL);
+	// }
+	// for (i = 0;; i++)
+	// {
+	// 	// if (i == 0)
+	// 	// {
+	// 	// 	pipe(pfds[i]);
+	// 	// }
+	// 	if (buf_empty) // Try to empty the buffer if it should be empty
+	// 	{
+	// 		memset(buf, 0, sizeof(buf));
+	// 	}
+	// 	pid_t pid;
+	// 	signal(SIGCHLD, SIG_IGN);
+	// 	pid = fork();
+	// 	if (pid < 0){
+	// 		printf(stderr, "Fork failed");
+	// 		return 1;
+	// 	}
+	// 	else if (pid == 0 ) 
+	// 	{ // Child process
+	// 		printf("%s %i***\n", ps[0],i);
+	// 		dup2(pfd[1], STDOUT_FILENO);
+	// 		close(pfd[1]);
 			
-			// if (!buf_empty)
-			// {
+	// 		// if (!buf_empty)
+	// 		// {
 				
-			// 	dup2(pfd[0], STDIN_FILENO);
-			// 	write(STDIN_FILENO, buf, sizeof(buf));
-			// 	buf_empty = true;
-			// }
-			close(pfd[0]);
-			// else if (p_next)
-			// {
-			// 	close(STDOUT_FILENO);
-			// 	dup(pfds[i][STDOUT_FILENO]);
-			// 	close(STDIN_FILENO);
-			// 	dup(pfds[i-1][STDIN_FILENO]);
-			// }
-			// else
-			// {
-				// close(0);
-				// dup(pfd[0]);
-				// close();
-				// close(STDOUT_FILENO);
-			// }
-			int result_t;
-			result_t = execvp(ps[0],ps);
+	// 		// 	dup2(pfd[0], STDIN_FILENO);
+	// 		// 	write(STDIN_FILENO, buf, sizeof(buf));
+	// 		// 	buf_empty = true;
+	// 		// }
+	// 		close(pfd[0]);
+	// 		// else if (p_next)
+	// 		// {
+	// 		// 	close(STDOUT_FILENO);
+	// 		// 	dup(pfds[i][STDOUT_FILENO]);
+	// 		// 	close(STDIN_FILENO);
+	// 		// 	dup(pfds[i-1][STDIN_FILENO]);
+	// 		// }
+	// 		// else
+	// 		// {
+	// 			// close(0);
+	// 			// dup(pfd[0]);
+	// 			// close();
+	// 			// close(STDOUT_FILENO);
+	// 		// }
+	// 		int result_t;
+	// 		result_t = execvp(ps[0],ps);
 
-		}
-		else
-		{
-			 // Parent process
-			if (!bg){
-				wait(NULL);
-				printf("Child is done\n");
-				close(pfd[1]);
-				dup2(pfd[0], STDIN_FILENO);
-				close(pfd[0]);
-				memset(buf, 0, sizeof(buf));
-				if ((read(STDIN_FILENO, buf, sizeof(buf))) > 0)
-    			{
-    				buf_empty = false;
-        			printf("Buffer is filled\n");
-    			}
-    			else
-    			{
-    				printf("reading STDIN encounter an error\n");
-    			}      
+	// 	}
+	// 	else
+	// 	{
+	// 		 // Parent process
+	// 		if (!bg){
+	// 			wait(NULL);
+	// 			printf("Child is done\n");
+	// 			close(pfd[1]);
+	// 			dup2(pfd[0], STDIN_FILENO);
+	// 			close(pfd[0]);
+	// 			memset(buf, 0, sizeof(buf));
+	// 			if ((read(STDIN_FILENO, buf, sizeof(buf))) > 0)
+ //    			{
+ //    				buf_empty = false;
+ //        			printf("Buffer is filled\n");
+ //    			}
+ //    			else
+ //    			{
+ //    				printf("reading STDIN encounter an error\n");
+ //    			}      
 				
-			}
-			else
-			{
-				printf("Child is on the background and running\n");
+	// 		}
+	// 		else
+	// 		{
+	// 			printf("Child is on the background and running\n");
 					
-			}
-			if (p->next == NULL)
-			{
-				if (!buf_empty)
-				{
-					printf("%s", buf);
-				}
-				printf("in the break\n");
-				// break;
-			}
-			else
-			{	
-				// wait(NULL);
-				p = p ->next;
-				ps = p ->pgmlist;
-			}
-		}
-	}
+	// 		}
+	// 		if (p->next == NULL)
+	// 		{
+	// 			if (!buf_empty)
+	// 			{
+	// 				printf("%s", buf);
+	// 			}
+	// 			printf("in the break\n");
+	// 			// break;
+	// 		}
+	// 		else
+	// 		{	
+	// 			// wait(NULL);
+	// 			p = p ->next;
+	// 			ps = p ->pgmlist;
+	// 		}
+	// 	}
+	// }
 
 }
 
+	// int pi[2];
+	// pipe(pi);
+int runCmds(Pgm *p)
+{
+	char **ps = p->pgmlist;
+	int pfds[2];
+	pipe(pfds);
+	
+	if (p == NULL) // Base case
+	{
+		return 0;
+	}
+	int res;
+	res = fork();
+	if (res < 0)
+	{
+		return -1;
+	}
+	else if (res > 0) // Parent process 
+	{
+		close(pfds[1]);
+		dup2(pfds[0], STDIN_FILENO);
+		close(pfds[0]);
+		wait(NULL);
+		if ((execvp(ps[0],ps)) < 0)
+		{
+			return -1;
+		}
+	}
+	else // Child process
+	{
+		close(pfds[0]);
+		dup2(pfds[1], STDOUT_FILENO);
+		close(pfds[1]);
+		if (p->next != NULL)
+		{
+			p = p->next;
+			runCmds(p);
+		}
+		else
+		{
+			if ((execvp(ps[0],ps)) < 0)
+			{
+			return -1;
+			}
+			// free(pfd);
+		}
+	}
+
+
+}
 
 // void runCommand(Command *cmd)
 // {
