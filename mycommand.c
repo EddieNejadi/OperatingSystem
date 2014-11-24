@@ -29,7 +29,8 @@ void runCommand(Command *cmd){
 	// printf(" %s this the runCommand function\n", *pl);
 	Pgm *p = cmd->pgm;
 	char **ps = p->pgmlist;
-	int i;
+
+	// int i;
 	int res;
 	// bool int_out = true;
 	// bool buf_empty = true;
@@ -44,7 +45,24 @@ void runCommand(Command *cmd){
 	}
 	else
 	{
-		runCmds(cmd->pgm);
+		FILE *stdout, *stdin;
+		stdin = NULL;
+		stdout = NULL;
+
+		if (cmd->rstdin != NULL)
+		{
+			stdin = fopen(cmd->rstdin, "r");
+			// dup2(fileno(stdin), )
+		}
+		if (cmd->rstdout != NULL)
+		{
+			stdout = fopen(cmd->rstdout, "w");
+		}
+
+		runCmds(cmd, cmd->pgm, stdin, stdout);
+		
+		if (stdin != NULL) fclose(stdin);
+		if (stdout != NULL) fclose(stdout);
 	}
 		// runCmds(cmd->pgm);
 	// res = fork();
@@ -154,9 +172,8 @@ void runCommand(Command *cmd){
 
 }
 
-	// int pi[2];
-	// pipe(pi);
-int runCmds(Pgm *p)
+
+int runCmds(Command *cmd,Pgm *p,FILE *stdin, FILE *stdout)
 {
 	char **ps = p->pgmlist;
 	int pfds[2];
@@ -166,18 +183,27 @@ int runCmds(Pgm *p)
 	{
 		return 0;
 	}
-	int res;
-	res = fork();
-	if (res < 0)
+	pid_t pid;
+	pid = fork();
+	if (pid < 0)
 	{
 		return -1;
 	}
-	else if (res > 0) // Parent process 
+	else if (pid > 0) // Parent process 
 	{
 		close(pfds[1]);
-		dup2(pfds[0], STDIN_FILENO);
-		close(pfds[0]);
-		wait(NULL);
+		printf("STDIN %s %s\n", cmd->rstdin, ps[0]);
+		if (stdin != NULL && strcmp(cmd->rstdin, ps[0]) == 0)
+		{
+			dup2(stdin, STDIN_FILENO);
+		}
+		else
+		{
+			dup2(pfds[0], STDIN_FILENO);
+			close(pfds[0]);
+		}
+		waitpid(pid,NULL,NULL);
+		// wait(NULL);
 		if ((execvp(ps[0],ps)) < 0)
 		{
 			return -1;
@@ -186,12 +212,22 @@ int runCmds(Pgm *p)
 	else // Child process
 	{
 		close(pfds[0]);
-		dup2(pfds[1], STDOUT_FILENO);
-		close(pfds[1]);
+		printf("STDOUT %s %s\n", cmd->rstdout, ps[0]);
+		if (stdout != NULL && strcmp(cmd->rstdout, ps[0]) == 0)
+		{
+			dup2(stdout, STDIN_FILENO);
+			printf("int the stdout\n");
+		}
+		else
+		{
+			dup2(pfds[1], STDOUT_FILENO);
+			close(pfds[1]);
+
+		}
 		if (p->next != NULL)
 		{
 			p = p->next;
-			runCmds(p);
+			runCmds(cmd, p, stdin, stdout);
 		}
 		else
 		{
@@ -199,8 +235,6 @@ int runCmds(Pgm *p)
 			{
 			return -1;
 			}
-			// wait(NULL);
-			// free(pfd);
 		}
 	}
 
