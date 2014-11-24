@@ -38,15 +38,15 @@ void runCommand(Command *cmd){
 	// int pfds[10][2];
 	int pfd[2];	
 	pipe(pfd);
-	// if (fork() > 0)
-	// {
-	// 	wait(NULL);
-	// }
-	// else
-	// {
-	// 	runCmds((cmd->pgm), pfd, 0);
-	// }
-		runCmds((cmd->pgm), pfd, 0);
+	if (fork() > 0)
+	{
+		wait(NULL);
+	}
+	else
+	{
+		runCmds(cmd->pgm);
+	}
+		// runCmds(cmd->pgm);
 	// res = fork();
 	// if ( res < 0)
 	// 	{
@@ -199,6 +199,7 @@ int runCmds(Pgm *p)
 			{
 			return -1;
 			}
+			// wait(NULL);
 			// free(pfd);
 		}
 	}
