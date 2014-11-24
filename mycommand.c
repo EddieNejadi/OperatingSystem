@@ -31,15 +31,21 @@ void runCommand(Command *cmd){
 	char **ps = p->pgmlist;
 	int i;
 	bool int_out = true;
+	bool buf_empty = true;
+	char buf [10000];
 	bool p_next = (p->next != NULL);
-	int pfds[10][2];
+	// int pfds[10][2];
 	int pfd[2];	
-	pipe(pfd);
-	for (i = 0;; i++)
+	pipe(pfd);	
+	for (i = 0; p != NULL; i++)
 	{
-		if (i == 0)
+		// if (i == 0)
+		// {
+		// 	pipe(pfds[i]);
+		// }
+		if (buf_empty) // Try to empty the buffer if it should be empty
 		{
-			pipe(pfds[i]);
+			memset(buf, 0, sizeof(buf));
 		}
 		pid_t pid;
 		signal(SIGCHLD, SIG_IGN);
@@ -51,13 +57,17 @@ void runCommand(Command *cmd){
 		else if (pid == 0 ) 
 		{ // Child process
 			printf("%s %i***\n", ps[0],i);
-			if (i == 0)
-			{
-				close(1);
-				dup(pfd[1]);
-				close(0);
-
-			}
+			dup2(pfd[1], STDOUT_FILENO);
+			close(pfd[1]);
+			
+			// if (!buf_empty)
+			// {
+				
+			// 	dup2(pfd[0], STDIN_FILENO);
+			// 	write(STDIN_FILENO, buf, sizeof(buf));
+			// 	buf_empty = true;
+			// }
+			close(pfd[0]);
 			// else if (p_next)
 			// {
 			// 	close(STDOUT_FILENO);
@@ -65,37 +75,59 @@ void runCommand(Command *cmd){
 			// 	close(STDIN_FILENO);
 			// 	dup(pfds[i-1][STDIN_FILENO]);
 			// }
-			else
-			{
-				close(0);
-				dup(pfd[0]);
+			// else
+			// {
+				// close(0);
+				// dup(pfd[0]);
 				// close();
 				// close(STDOUT_FILENO);
-			}
+			// }
 			int result_t;
 			result_t = execvp(ps[0],ps);
 
 		}
-		if (p->next == NULL)
-		{
-			break;
-		}
 		else
-		{	
-			wait(NULL);
-			p = p ->next;
-			ps = p ->pgmlist;
+		{
+			 // Parent process
+			if (!bg){
+				wait(NULL);
+				printf("Child is done\n");
+				close(pfd[1]);
+				dup2(pfd[0], STDIN_FILENO);
+				close(pfd[0]);
+				memset(buf, 0, sizeof(buf));
+				if ((read(STDIN_FILENO, buf, sizeof(buf))) > 0)
+    			{
+    				buf_empty = false;
+        			printf("Buffer is filled\n");
+    			}
+    			else
+    			{
+    				printf("reading STDIN encounter an error\n");
+    			}      
+				
+			}
+			else
+			{
+				printf("Child is on the background and running\n");
+					
+			}
+			if (p->next == NULL)
+			{
+				if (!buf_empty)
+				{
+					printf("%s", buf);
+				}
+				printf("in the break\n");
+				// break;
+			}
+			else
+			{	
+				// wait(NULL);
+				p = p ->next;
+				ps = p ->pgmlist;
+			}
 		}
-	}
-	 // Parent process
-	if (!bg){
-		wait(NULL);
-		printf("Child is done\n");
-	}
-	else
-	{
-		printf("Child is on the background and running\n");
-			
 	}
 
 }
