@@ -12,11 +12,23 @@
 #include <sys/wait.h>
 
 extern char **environ;
+static pid_t ch;
 
 
 
+void exitHandler(int sig) 
+{
+	printf("\nin exitHandler signal is: %d and pid is: %d\n", sig, getpid());
+    if (ch != NULL)
+    {
+    	kill(ch,9);
+    }
+    // return 0;
+}
 
-void runCommand(Command *cmd){
+void runCommand(Command *cmd)
+{
+	ch = NULL;
 	char **pl = cmd->pgm->pgmlist;
 	int bg = (int) cmd->bakground;
 	// printf ("%i\n", bg);
@@ -25,16 +37,42 @@ void runCommand(Command *cmd){
 	Pgm *p = cmd->pgm;
 	char **ps = p->pgmlist;
 
-	int res;
-	int pfd[2];	
-	pipe(pfd);
-	signal(SIGCHLD, SIG_IGN);
-	res = fork();
-	if (res > 0) // Parent process
+	if (strcmp(ps[0], "exit") == 0)
 	{
-		if (bg == 0) wait(NULL);
+		exit(0);
 	}
-	else // Child process
+	pid_t res;
+	res = NULL;
+	// int pfd[2];	
+	// pipe(pfd);
+	signal(SIGCHLD, SIG_IGN);
+	signal(SIGINT, exitHandler);
+	if (bg == 0)
+	{
+		ch = fork();
+	}else
+		res = fork();
+	{
+	}
+	if ((ch < 0 && res == NULL) || (res < 0 && ch == NULL))
+	{
+		printf("fork get error\n");
+	}
+	if ((ch > 0 && res == NULL) || (res > 0 && ch == NULL)) // Parent process
+	{
+		if (bg == 0) // Check if the ch is not background process
+		{
+			printf("Parent pid is: %d and ch is %d\n", getpid(), ch);
+			if (ch > 0) waitpid(ch,NULL,NULL);
+			else waitpid(res,NULL,NULL);
+			// while(c)
+			// {
+
+			// }	
+			printf("DONE\n");
+		} 
+	}
+	else // ch process
 	{
 		FILE *output, *input;
 		input = NULL;
@@ -69,6 +107,7 @@ int runCmds(Command *cmd,Pgm *p)
 		return 0;
 	}
 	pid_t pid;
+	
 	pid = fork();
 	if (pid < 0)
 	{
@@ -86,7 +125,7 @@ int runCmds(Command *cmd,Pgm *p)
 			return -1;
 		}
 	}
-	else // Child process
+	else // ch process
 	{
 		close(pfds[0]);
 		// printf("STDOUT %s %s\n", cmd->rstdout, ps[0]);
@@ -105,6 +144,6 @@ int runCmds(Command *cmd,Pgm *p)
 			}
 		}
 	}
-
-
 }
+
+
