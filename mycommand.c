@@ -28,11 +28,13 @@ void runCommand(Command *cmd){
 	int res;
 	int pfd[2];	
 	pipe(pfd);
-	if (fork() > 0)
+	signal(SIGCHLD, SIG_IGN);
+	res = fork();
+	if (res > 0) // Parent process
 	{
-		wait(NULL);
+		if (bg == 0) wait(NULL);
 	}
-	else
+	else // Child process
 	{
 		FILE *output, *input;
 		input = NULL;
@@ -47,7 +49,7 @@ void runCommand(Command *cmd){
 			output = freopen(cmd->rstdout, "w", stdout);
 		}
 
-		runCmds(cmd, cmd->pgm, input, output);
+		runCmds(cmd, cmd->pgm);
 		
 		if (input != NULL) fclose(input);
 		if (output != NULL) fclose(output);
@@ -55,7 +57,7 @@ void runCommand(Command *cmd){
 }
 
 
-int runCmds(Command *cmd,Pgm *p,FILE *input, FILE *output)
+int runCmds(Command *cmd,Pgm *p)
 {
 	char **ps = p->pgmlist;
 	int pfds[2];
@@ -75,7 +77,7 @@ int runCmds(Command *cmd,Pgm *p,FILE *input, FILE *output)
 	else if (pid > 0) // Parent process 
 	{
 		close(pfds[1]);
-		printf("STDIN %s %s\n", cmd->rstdin, ps[0]);
+		// printf("STDIN %s %s\n", cmd->rstdin, ps[0]);
 		dup2(pfds[0], STDIN_FILENO);
 		close(pfds[0]);
 		waitpid(pid,NULL,NULL);
@@ -87,13 +89,13 @@ int runCmds(Command *cmd,Pgm *p,FILE *input, FILE *output)
 	else // Child process
 	{
 		close(pfds[0]);
-		printf("STDOUT %s %s\n", cmd->rstdout, ps[0]);
+		// printf("STDOUT %s %s\n", cmd->rstdout, ps[0]);
 		dup2(pfds[1], STDOUT_FILENO);
 		close(pfds[1]);
 		if (p->next != NULL)
 		{
 			p = p->next;
-			runCmds(cmd, p, input, output);
+			runCmds(cmd, p);
 		}
 		else
 		{
