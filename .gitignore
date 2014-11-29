@@ -28,6 +28,11 @@
 *.x86_64
 *.hex
 
+
+#Document files
+*.pdf
+*.tgz
+
 # Only executable file in this repo
 lsh
 

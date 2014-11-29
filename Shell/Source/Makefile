@@ -26,3 +26,4 @@ lsh:	$(OBJS)
 clean:
 	-rm -f $(OBJS) lsh
 	-rm -f *.t # removes testing text file
+	-rm -f test # remves binary test file
