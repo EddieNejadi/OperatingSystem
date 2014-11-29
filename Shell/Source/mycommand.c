@@ -23,7 +23,6 @@ void exitHandler(int sig)
 	if (parent_pid != getpid() && bgp != getpgid(getpid()) )
 	{
 		_exit(-1);
-
 	}
 }
 
@@ -89,8 +88,28 @@ void runCommand(Command *cmd)
 		{
 			output = freopen(cmd->rstdout, "w", stdout);
 	}
-
-		runCmds(cmd, cmd->pgm);
+		if (p->next != NULL)
+		{
+			runCmds(cmd, cmd->pgm);
+		}
+		else
+		{
+			// if (bgp != NULL && bgp == getpgid(getpid())) 
+			if (bg != 0)
+			{
+				if (bgp == NULL) bgp = getpid();  
+				setpgid(getpid(), bgp);
+				fprintf(stderr, "Added to bgpg\n");
+			}
+			if ((execvp(ps[0],ps)) < 0)
+			{
+				_exit(-1);
+			}
+			else
+			{
+				_exit(0);
+			}
+		}
 		
 		if (input != NULL) fclose(input);
 		if (output != NULL) fclose(output);
@@ -103,7 +122,6 @@ int runCmds(Command *cmd,Pgm *p)
 	char **ps = p->pgmlist;
 	int pfds[2];
 	pipe(pfds);
-	char b;
 	
 	if (p == NULL) // Base case
 	{
@@ -121,15 +139,18 @@ int runCmds(Command *cmd,Pgm *p)
 		close(pfds[1]);
 		dup2(pfds[0], STDIN_FILENO);
 		close(pfds[0]);
-		if (bgp != NULL && bgp == getpgid(getpid())) 
+		if(cmd->bakground)
 		{
+			if (bgp == NULL) bgp = getpid();  
 			setpgid(getpid(), bgp);
+			fprintf(stderr, "Added to bgpg\n");
 		}
 		waitpid(pid,NULL,NULL);
 		if ((execvp(ps[0],ps)) < 0)
 		{
 			return -1;
 		}
+		_exit(0);
 	}
 	else // Child process
 	{
@@ -138,14 +159,19 @@ int runCmds(Command *cmd,Pgm *p)
 		close(pfds[1]);
 		if (p->next != NULL)
 		{
-			p = p->next;
-			runCmds(cmd, p);
+			runCmds(cmd, p->next);
 		}
 		else
 		{
 			if ((execvp(ps[0],ps)) < 0)
 			{
-				return -1;
+				fprintf(stderr, "IN error of child execvp\n");
+				_exit(-1);
+			}
+			else
+			{
+				fprintf(stderr, "IN child execvp\n");
+				_exit(0);
 			}
 		}
 	}
