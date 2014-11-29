@@ -67,7 +67,7 @@ int main(void)
         add_history(line);
         /* execute it */
         n = parse(line, &cmd);
-        PrintCommand(n, &cmd);
+        // PrintCommand(n, &cmd);
         runCommand (&cmd);
       }
     }

@@ -19,26 +19,18 @@ static pid_t bgp;
 
 void exitHandler(int sig) 
 {
-	printf("\nin exitHandler signal is: %d and pid is: %d\n", sig, getpid());
 
-    if (parent_pid != getpid() && bgp != getpgid(getpid()) )
-    {
-		printf("\n**** getpid() is: %d\n", getpid());
-    	// exit(-1);
-    	kill(getpgid(getpid()), sig);
+	if (parent_pid != getpid() && bgp != getpgid(getpid()) )
+	{
+		_exit(-1);
 
-    }
-    // return 0;
+	}
 }
 
 void runCommand(Command *cmd)
 {
 	parent_pid = getpid();
-	char **pl = cmd->pgm->pgmlist;
 	int bg = (int) cmd->bakground;
-	// printf ("%i\n", bg);
-	// printf("in runCommand\n");
-	// printf(" %s this the runCommand function\n", *pl);
 	Pgm *p = cmd->pgm;
 	char **ps = p->pgmlist;
 
@@ -46,42 +38,28 @@ void runCommand(Command *cmd)
 	{
 		exit(0);
 	}
+	else if (strcmp(ps[0], "cd") == 0)
+	{
+		chdir(ps[1]);
+	}
 	pid_t res;
 	res = NULL;
 	bgp = NULL;
-	// int pfd[2];	
-	// pipe(pfd);
+
 	signal(SIGINT, exitHandler);
 	signal(SIGCHLD, SIG_IGN);
 	res = fork();
 
-	// if (bg == 0)
-	// {
-	// 	ch = fork();
-	// }else
-	// {
-	// }
-	// if ((ch < 0 && res == NULL) || (res < 0 && ch == NULL))
 	if (res < 0)
 	{
-		printf("fork get error\n");
+		fprintf(stderr,"fork() was unsuccessful\n");
 	}
-	// if ((ch > 0 && res == NULL) || (res > 0 && ch == NULL)) // Parent process
 	if (res > 0) // Parent process
 	{
 		if (bg == 0) // Check if the child is not background process
 		{
-			printf("Parent pid is: %d\n", getpid());
 			child_pid = res;
 			waitpid(res,NULL,NULL);
-			// wait(NULL);
-			// if (ch > 0) waitpid(ch,NULL,NULL);
-			// else waitpid(res,NULL,NULL);
-			// while(c)
-			// {
-
-			// }	
-			printf("DONE\n");
 		}
 		else // Background process
 		{
@@ -93,7 +71,6 @@ void runCommand(Command *cmd)
 			{
 				bgp = setsid();
 				setpgid(bgp, 0);
-				printf("bgp= %d bgpgid%d\n",bgp,getpgid(getpid()));
 			}
 
 		} 
@@ -133,7 +110,6 @@ int runCmds(Command *cmd,Pgm *p)
 		return 0;
 	}
 	pid_t pid;
-	// signal(SIGCHLD, SIG_IGN);
 	signal(SIGINT, exitHandler);
 	pid = fork();
 	if (pid < 0)
@@ -143,7 +119,6 @@ int runCmds(Command *cmd,Pgm *p)
 	else if (pid > 0) // Parent process 
 	{
 		close(pfds[1]);
-		// printf("STDIN %s %s\n", cmd->rstdin, ps[0]);
 		dup2(pfds[0], STDIN_FILENO);
 		close(pfds[0]);
 		if (bgp != NULL && bgp == getpgid(getpid())) 
@@ -159,7 +134,6 @@ int runCmds(Command *cmd,Pgm *p)
 	else // Child process
 	{
 		close(pfds[0]);
-		// printf("STDOUT %s %s\n", cmd->rstdout, ps[0]);
 		dup2(pfds[1], STDOUT_FILENO);
 		close(pfds[1]);
 		if (p->next != NULL)
@@ -171,7 +145,7 @@ int runCmds(Command *cmd,Pgm *p)
 		{
 			if ((execvp(ps[0],ps)) < 0)
 			{
-			return -1;
+				return -1;
 			}
 		}
 	}
