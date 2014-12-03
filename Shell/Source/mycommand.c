@@ -44,81 +44,82 @@ void runCommand(Command *cmd)
 		exit(0);
 	}
 	else if (strcmp(ps[0], "cd") == 0)
-		{
+	{
 		chdir(ps[1]);
-		}
-
-
-	signal(SIGINT, exitHandler);
+	}
+	else
+	{
+		signal(SIGINT, exitHandler);
 		signal(SIGCHLD, SIG_IGN);
-	res = fork();
-
-	if (res < 0)
-	{
-		fprintf(stderr,"fork() was unsuccessful\n");
-	}
-	if (res > 0) /* Parent process */
-	{
-		if (bg == 0) /* Check if the child is not background process */
+		res = fork();
+		if (res < 0)
 		{
-			child_pid = res;
-			waitpid(res,&status,0);
+			fprintf(stderr,"fork() was unsuccessful\n");
 		}
-		else /* Background process */
+		if (res > 0) /* Parent process */
 		{
-			/* if (bgp > 0 && bgp != NULL) */
-			if (bgp)
+			if (bg == 0) /* Check if the child is not background process */
 			{
-				setpgid(getpid(), bgp);
-		}
-		else
-		{	
-				bgp = setsid();
-				setpgid(bgp, 0);
-		}
-
-	}
-	}
-	else /* Child process */
-	{
-		FILE *output, *input;
-/*		input = NULL; */
-/*		output = NULL; */
-			
-		if (cmd->rstdin != NULL)
-		{
-			input = freopen(cmd->rstdin, "r", stdin);
-		}
-		if (cmd->rstdout != NULL)
-		{
-			output = freopen(cmd->rstdout, "w", stdout);
-	}
-		if (p->next != NULL)
-		{
-			runCmds(cmd, cmd->pgm);
-		}
-		else
-		{
-			/* if (bgp != NULL && bgp == getpgid(getpid()))  */
-			if (bg != 0)
-			{
-				/* if (bgp == NULL) bgp = getpid();  */
-				if (!bgp) bgp = getpid();  
-				setpgid(getpid(), bgp);
-				fprintf(stderr, "Added to bgpg\n");
+				child_pid = res;
+				waitpid(res,&status,0);
 			}
-			if ((execvp(ps[0],ps)) < 0)
+			else /* Background process */
 			{
-				_exit(-1);
+				/* if (bgp > 0 && bgp != NULL) */
+				if (bgp)
+				{
+					setpgid(getpid(), bgp);
+				}
+				else
+				{	
+					bgp = setsid();
+					setpgid(bgp, 0);
+				}
+
+			}
+		}
+		else /* Child process */
+		{
+			FILE *output, *input;
+	/*		input = NULL; */
+	/*		output = NULL; */
+				
+			if (cmd->rstdin != NULL)
+			{
+				input = freopen(cmd->rstdin, "r", stdin);
+			}
+			if (cmd->rstdout != NULL)
+			{
+				output = freopen(cmd->rstdout, "w", stdout);
+		}
+			if (p->next != NULL)
+			{
+				runCmds(cmd, cmd->pgm);
 			}
 			else
 			{
-				_exit(0);
+				/* if (bgp != NULL && bgp == getpgid(getpid()))  */
+				if (bg != 0)
+				{
+					/* if (bgp == NULL) bgp = getpid();  */
+					if (!bgp) bgp = getpid();  
+					setpgid(getpid(), bgp);
+					fprintf(stderr, "Added to bgpg and pid is %d\n", getpid());
+				}
+				if ((execvp(ps[0],ps)) < 0)
+				{
+					fprintf(stderr, "Bad command\n");
+					_exit(-1);
+				}
+				else
+				{
+					_exit(0);
+				}
 			}
+			
+			if (input != NULL) fclose(input);
+			if (output != NULL) fclose(output);
 		}
-		
-		if (input != NULL) fclose(input);
-		if (output != NULL) fclose(output);
 	}
 }
 
@@ -152,7 +153,7 @@ int runCmds(Command *cmd,Pgm *p)
 			/* if (bgp == NULL) bgp = getpid();  */
 			if (!bgp) bgp = getpid();  
 			setpgid(getpid(), bgp);
-			fprintf(stderr, "Added to bgpg\n");
+			fprintf(stderr, "Added to bgpg and pid is %d\n", getpid());
 		}
 		waitpid(pid,&status,0);
 		if ((execvp(ps[0],ps)) < 0)
@@ -176,12 +177,12 @@ int runCmds(Command *cmd,Pgm *p)
 		{
 			if ((execvp(ps[0],ps)) < 0)
 			{
-				fprintf(stderr, "IN error of child execvp\n");
+				fprintf(stderr, "Error occurred in child execvp function\n");
 				_exit(-1);
 			}
 			else
 			{
-				fprintf(stderr, "IN child execvp\n");
+				/* fprintf(stderr, "IN child execvp\n"); */
 				_exit(0);
 			}
 		}
