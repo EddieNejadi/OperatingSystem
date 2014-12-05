@@ -171,6 +171,7 @@ timer_print_stats (void)
 }
 
 
+
 static void
 timer_check_ready(struct thread *t, void *aux)
 {
