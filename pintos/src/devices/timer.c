@@ -183,7 +183,7 @@ timer_check_ready(struct thread *t, void *aux)
     }
     else
     {
-      intr_enable();
+      /*intr_enable();*/
       thread_unblock(t);
     }
   }
