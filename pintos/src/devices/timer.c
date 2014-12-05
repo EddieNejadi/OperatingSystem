@@ -169,18 +169,7 @@ timer_print_stats (void)
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
 
-/* Timer interrupt handler. */
-static void
-timer_interrupt (struct intr_frame *args UNUSED)
-{
-  ticks++;
-  thread_tick ();
-  /* Try to check sleeped threads to wake up if they are ready*/
-  /*thread action func * action
-  void (*timer_check_ready)(struct thread,void *); */
-  void * aux;
-  thread_foreach(&timer_check_ready, aux);
-}
+
 static void
 timer_check_ready(struct thread *t, *aux)
 {
@@ -195,6 +184,19 @@ timer_check_ready(struct thread *t, *aux)
       thread_unblock(t);
     }
   }
+}
+
+/* Timer interrupt handler. */
+static void
+timer_interrupt (struct intr_frame *args UNUSED)
+{
+  ticks++;
+  thread_tick ();
+  /* Try to check sleeped threads to wake up if they are ready*/
+  /*thread action func * action
+  void (*timer_check_ready)(struct thread,void *); */
+  void * aux;
+  thread_foreach(&timer_check_ready, aux);
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
