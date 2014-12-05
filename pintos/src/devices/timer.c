@@ -92,8 +92,11 @@ timer_sleep (int64_t ticks)
   int64_t start = timer_ticks ();
 
   ASSERT (intr_get_level () == INTR_ON);
-  while (timer_elapsed (start) < ticks) 
-    thread_yield ();
+  /* while (timer_elapsed (start) < ticks) 
+    thread_yield (); */
+  thread_current ()->sleep_ticks = ticks;
+  thread_current ()->status = THREAD_BLOCKED;
+/*  thread_block(); */
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
@@ -172,6 +175,26 @@ timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
   thread_tick ();
+  /* Try to check sleeped threads to wake up if they are ready*/
+  /*thread action func * action
+  void (*timer_check_ready)(struct thread,void *); */
+  void * aux;
+  thread_foreach(&timer_check_ready, aux);
+}
+static void
+timer_check_ready(struct thread *t, *aux)
+{
+  if (t->status == THREAD_BLOCKED)
+  {
+    if (t->sleep_ticks > 0)
+    {
+     t->sleep_ticks--; 
+    }
+    else
+    {
+      thread_unblock(t);
+    }
+  }
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
