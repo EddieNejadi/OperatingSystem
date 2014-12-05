@@ -171,7 +171,7 @@ timer_print_stats (void)
 
 
 static void
-timer_check_ready(struct thread *t, *aux)
+timer_check_ready(struct thread *t, void *aux)
 {
   if (t->status == THREAD_BLOCKED)
   {
