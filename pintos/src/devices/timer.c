@@ -168,7 +168,7 @@ timer_print_stats (void)
 {
   printf ("Timer: %"PRId64" ticks\n", timer_ticks ());
 }
-
+
 
 static void
 timer_check_ready(struct thread *t, *aux)
