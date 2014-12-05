@@ -96,6 +96,7 @@ timer_sleep (int64_t ticks)
   thread_current ()->status = THREAD_BLOCKED;
     thread_yield (); */
   thread_current ()->sleep_ticks = ticks;
+  intr_disable();
   thread_block();
 }
 
@@ -181,6 +182,7 @@ timer_check_ready(struct thread *t, void *aux)
     }
     else
     {
+      intr_enable();
       thread_unblock(t);
     }
   }
