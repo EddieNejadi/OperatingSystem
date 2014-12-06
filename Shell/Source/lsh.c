@@ -44,7 +44,7 @@ int done = 0;
 int main(void)
 {
   Command cmd;
-  int n;
+  /* int n; */
 
   while (!done) {
 
@@ -66,8 +66,9 @@ int main(void)
       if(*line) {
         add_history(line);
         /* execute it */
-        n = parse(line, &cmd);
-        // PrintCommand(n, &cmd);
+        /* n = parse(line, &cmd); */
+        parse(line, &cmd);
+        /* PrintCommand(n, &cmd); */
         runCommand (&cmd);
       }
     }

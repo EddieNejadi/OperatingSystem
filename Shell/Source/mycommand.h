@@ -1,2 +1,1 @@
-// #include "parse.h"
- void runCommand(Command *command);
+void runCommand(Command *command);
