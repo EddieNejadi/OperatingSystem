@@ -22,7 +22,6 @@ void exitHandler(int sig)
 
 	if (parent_pid != getpid() && bgpg != getpgid(getpid()) )
 	{
-		fprintf(stderr,"bgp: %d and pgid: %d and pid: %d\n",bgpg,getpgid(getpid()),getpid());
 		_exit(-1);
 	}
 }
@@ -30,8 +29,6 @@ void exitHandler(int sig)
 void runCommand(Command *cmd)
 {
 	pid_t res,resBg;
-/*	res = NULL; */
-/*	bgp = NULL; */
 	int bg, status, bgStatus;
 	Pgm *p;
 	char **ps;
@@ -48,10 +45,6 @@ void runCommand(Command *cmd)
 	{
 		chdir(ps[1]);
 	}
-	else if (strcmp(ps[0], "echobgpg") == 0)
-	{
-		fprintf(stderr, "bgpg:%d and getpgid(getpid()): %d\n",bgpg,getpgid(getpid()));
-	}
 	else
 	{
 		if (!bgpg)
@@ -60,22 +53,9 @@ void runCommand(Command *cmd)
 			if (resBg == 0)
 			{
 				bgpg = setsid();
-				fprintf(stderr, "resBg: %d and bgpg: %d\n", resBg,bgpg);
-				if (bgpg < 0)
-				{
-					fprintf(stderr, "bgpg = setsid(): %d\n", bgpg);
-				}
-				if (setpgid(bgpg, 0) < 0)
-				{
-					fprintf(stderr, "Error occurred setpgid(bgpg, 0): %d\n", setpgid(bgpg, 0));
-				}
 				waitpid(parent_pid,&bgStatus,0);
 				_exit(0);
 			}
-			// else
-			// {
-			// 	bgpg = resBg;
-			// }
 		}
 		signal(SIGINT, exitHandler);
 		signal(SIGCHLD, SIG_IGN);
@@ -98,20 +78,12 @@ void runCommand(Command *cmd)
 				{
 					setpgid(getpid(), bgpg);
 				}
-				// else
-				// {	
-				// 	bgpg = setsid();
-				// 	setpgid(bgpg, 0);
-				// }
-
 			}
 		}
 		else /* Child process */
 		{
 			FILE *output, *input;
-	/*		input = NULL; */
-	/*		output = NULL; */
-				
+
 			if (cmd->rstdin != NULL)
 			{
 				input = freopen(cmd->rstdin, "r", stdin);
@@ -119,20 +91,17 @@ void runCommand(Command *cmd)
 			if (cmd->rstdout != NULL)
 			{
 				output = freopen(cmd->rstdout, "w", stdout);
-		}
+			}
 			if (p->next != NULL)
 			{
 				runCmds(cmd, cmd->pgm);
 			}
 			else
 			{
-				/* if (bgp != NULL && bgp == getpgid(getpid()))  */
 				if (bg != 0)
 				{
-					/* if (bgp == NULL) bgp = getpid();  */
 					if (!bgpg) bgpg = getpid();
 					setpgid(getpid(), bgpg);
-					fprintf(stderr, "Added to bgpg and pid is %d\n", getpid());
 				}
 				if ((execvp(ps[0],ps)) < 0)
 				{
@@ -178,10 +147,8 @@ int runCmds(Command *cmd,Pgm *p)
 		close(pfds[0]);
 		if(cmd->bakground)
 		{
-			/* if (bgp == NULL) bgp = getpid();  */
 			if (!bgpg) bgpg = getpid();
 			setpgid(getpid(), bgpg);
-			fprintf(stderr, "Added to bgpg and pid is %d\n", getpid());
 		}
 		waitpid(pid,&status,0);
 		if ((execvp(ps[0],ps)) < 0)
@@ -210,7 +177,6 @@ int runCmds(Command *cmd,Pgm *p)
 			}
 			else
 			{
-				/* fprintf(stderr, "IN child execvp\n"); */
 				_exit(0);
 			}
 		}
