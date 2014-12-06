@@ -73,7 +73,6 @@ void runCommand(Command *cmd)
 			}
 			else /* Background process */
 			{
-				/* if (bgp > 0 && bgp != NULL) */
 				if (bgpg)
 				{
 					setpgid(getpid(), bgpg);
