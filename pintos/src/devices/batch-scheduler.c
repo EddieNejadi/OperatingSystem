@@ -48,7 +48,7 @@ void init_bus(void){
     
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-    bus_semaphore = (semaphore) {value = 0 };
+    bus_semaphore = malloc(sizeof(bus_semaphore));  
     
     sema_init(bus_semaphore, BUS_CAPACITY);
 
