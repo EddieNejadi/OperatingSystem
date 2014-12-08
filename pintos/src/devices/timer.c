@@ -95,9 +95,12 @@ timer_sleep (int64_t ticks)
   /* while (timer_elapsed (start) < ticks) 
   thread_current ()->status = THREAD_BLOCKED;
     thread_yield (); */
-  thread_current ()->sleep_ticks = ticks;
-  intr_disable();
-  thread_block();
+  if ( ticks > 0)
+  {
+    thread_current ()->sleep_ticks = ticks;
+    intr_disable();
+    thread_block();
+  }
 }
 
 /* Sleeps for approximately MS milliseconds.  Interrupts must be
