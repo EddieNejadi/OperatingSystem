@@ -188,7 +188,7 @@ timer_check_ready(struct thread *t, void *aux)
     {
       /*intr_enable();*/
       thread_unblock(t);
-      thread_yield();
+      /* thread_yield(); */
     }
   }
 }
