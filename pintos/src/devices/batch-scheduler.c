@@ -23,6 +23,8 @@ typedef struct {
 	int priority;
 } task_t;
 
+static struct semaphore *bus_semaphore;
+
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive);
 
@@ -44,8 +46,10 @@ void init_bus(void){
  
     random_init((unsigned int)123456789); 
     
-    msg("NOT IMPLEMENTED");
+    /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
+    
+    sema_init(sem, BUS_CAPACITY);
 
 }
 
@@ -63,8 +67,27 @@ void init_bus(void){
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive)
 {
-    msg("NOT IMPLEMENTED");
+    /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
+    void *aux;
+    for(int i = 0;i < num_tasks_send; i++)
+        {
+            thread_create("senderTask", PRI_DEFAULT, &senderTask, aux);
+        }
+    for(int i = 0;i < num_tasks_receive; i++)
+        {
+            thread_create("receiverTask", PRI_DEFAULT, &senderTask, aux);
+        }
+    for(int i = 0;i < num_priority_send; i++)
+        {
+            thread_create("senderPriorityTask", PRI_MAX, &senderTask, aux);
+        }
+    for(int i = 0;i < num_priority_receive; i++)
+        {
+            thread_create("receiverPriorityTask", PRI_MAX, &senderTask, aux);
+        }
+
+
 }
 
 /* Normal task,  sending data to the accelerator */
@@ -102,20 +125,28 @@ void oneTask(task_t task) {
 /* task tries to get slot on the bus subsystem */
 void getSlot(task_t task) 
 {
-    msg("NOT IMPLEMENTED");
+    /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
+    sema_down(bus_semaphore);
+    /* transferData(task); */
 }
 
 /* task processes data on the bus send/receive */
 void transferData(task_t task) 
 {
-    msg("NOT IMPLEMENTED");
+    /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
+    printf "Start transfering data into the buss..."
+    int64_t ticks = (int64_t) random_rand();
+    timer_sleep(ticks);
+    printf "Leaving from the buss..."
+    /*leaveSlot(task);*/
 }
 
 /* task releases the slot */
 void leaveSlot(task_t task) 
 {
-    msg("NOT IMPLEMENTED");
+    /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
+    sema_up(bus_semaphore);
 }
