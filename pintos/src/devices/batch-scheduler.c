@@ -75,7 +75,7 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         {
             thread_create("senderTask", PRI_DEFAULT, &senderTask, aux);
         }
-    for(i = 0;i < num_tasks_receive; i++)
+    for(i = 0;i < num_task_receive; i++)
         {
             thread_create("receiverTask", PRI_DEFAULT, &senderTask, aux);
         }
