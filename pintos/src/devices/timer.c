@@ -197,7 +197,7 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED)
 {
   ticks++;
-  thread_tick ();
+  thread_tick();
   /* Try to check sleeped threads to wake up if they are ready*/
   /*thread action func * action
   void (*timer_check_ready)(struct thread,void *); */
