@@ -49,7 +49,7 @@ void init_bus(void){
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
     
-    sema_init(sem, BUS_CAPACITY);
+    sema_init(bus_semaphore, BUS_CAPACITY);
 
 }
 
@@ -74,15 +74,15 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         {
             thread_create("senderTask", PRI_DEFAULT, &senderTask, aux);
         }
-    for(int i = 0;i < num_tasks_receive; i++)
+    for(i = 0;i < num_tasks_receive; i++)
         {
             thread_create("receiverTask", PRI_DEFAULT, &senderTask, aux);
         }
-    for(int i = 0;i < num_priority_send; i++)
+    for(i = 0;i < num_priority_send; i++)
         {
             thread_create("senderPriorityTask", PRI_MAX, &senderTask, aux);
         }
-    for(int i = 0;i < num_priority_receive; i++)
+    for(i = 0;i < num_priority_receive; i++)
         {
             thread_create("receiverPriorityTask", PRI_MAX, &senderTask, aux);
         }
