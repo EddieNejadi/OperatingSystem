@@ -70,7 +70,7 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
 {
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-    void *aux;
+    char *aux;
     int i;
     for(i = 0;i < num_tasks_send; i++)
         {
