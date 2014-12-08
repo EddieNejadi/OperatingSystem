@@ -39,7 +39,7 @@ void oneTask(task_t task);/*Task requires to use the bus and executes methods be
 	void transferData(task_t task); /* task processes data on the bus either sending or receiving based on the direction*/
 	void leaveSlot(task_t task); /* task release the slot */
 
-
+    
 
 /* initializes semaphores */ 
 void init_bus(void){ 
@@ -129,7 +129,7 @@ void getSlot(task_t task)
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    sema_down(bus_semaphore);
+    sema_down(&bus_semaphore);
     /* transferData(task); */
 }
 
@@ -151,5 +151,5 @@ void leaveSlot(task_t task)
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    sema_up(bus_semaphore);
+    sema_up(&bus_semaphore);
 }
