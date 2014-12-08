@@ -23,7 +23,7 @@ typedef struct {
 	int priority;
 } task_t;
 
-static struct semaphore *bus_semaphore;
+static struct semaphore bus_semaphore;
 
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive);
@@ -48,9 +48,9 @@ void init_bus(void){
     
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-    bus_semaphore = malloc(sizeof(bus_semaphore));  
+   // bus_semaphore = malloc(sizeof(bus_semaphore));  
     
-    sema_init(bus_semaphore, BUS_CAPACITY);
+    sema_init(&bus_semaphore, BUS_CAPACITY);
 
 }
 
