@@ -70,23 +70,23 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
 {
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-    char *aux;
+    char aux = 'n';
     int i;
     for(i = 0;i < num_tasks_send; i++)
         {
-            thread_create("senderTask", PRI_DEFAULT, &senderTask, aux);
+            thread_create("senderTask", PRI_DEFAULT, &senderTask, &aux);
         }
     for(i = 0;i < num_task_receive; i++)
         {
-            thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, aux);
+            thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, &aux);
         }
     for(i = 0;i < num_priority_send; i++)
         {
-            thread_create("senderPriorityTask", PRI_MAX, &receiverTask, aux);
+            thread_create("senderPriorityTask", PRI_MAX, &receiverTask, &aux);
         }
     for(i = 0;i < num_priority_receive; i++)
         {
-            thread_create("receiverPriorityTask", PRI_MAX, &receiverPriorityTask, aux);
+            thread_create("receiverPriorityTask", PRI_MAX, &receiverPriorityTask, &aux);
         }
 
 
@@ -139,9 +139,9 @@ void transferData(task_t task)
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
     printf("Start transfering data into the buss...");
-    //int64_t ticks;
-    //ticks = (int64_t) random_ulong();
-    //timer_sleep(ticks);
+    int64_t ticks;
+    ticks = (int64_t) random_ulong();
+    timer_sleep(ticks);
     printf("Leaving from the buss...");
     /*leaveSlot(task);*/
 }
