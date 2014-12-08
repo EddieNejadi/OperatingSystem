@@ -181,7 +181,7 @@ timer_check_ready(struct thread *t, void *aux)
 {
   if (t->status == THREAD_BLOCKED)
   {
-    if (t->sleep_ticks > 0)
+    if (t->sleep_ticks > 1)
     {
      t->sleep_ticks--; 
     }
