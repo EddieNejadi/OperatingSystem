@@ -139,7 +139,7 @@ void transferData(task_t task)
     /* FIXME implement */
     printf("Start transfering data into the buss...");
     int64_t ticks;
-    ticks = (int64_t) random_rand();
+    ticks = (int64_t) random_ulong();
     timer_sleep(ticks);
     printf("Leaving from the buss...");
     /*leaveSlot(task);*/
