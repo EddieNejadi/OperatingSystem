@@ -70,24 +70,24 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
 {
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-    char aux = 'n';
-    int i;
-    for(i = 0;i < num_tasks_send; i++)
-        {
-            thread_create("senderTask", PRI_DEFAULT, &senderTask, &aux);
-        }
-    for(i = 0;i < num_task_receive; i++)
-        {
-            thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, &aux);
-        }
-    for(i = 0;i < num_priority_send; i++)
-        {
-            thread_create("senderPriorityTask", PRI_MAX, &receiverTask, &aux);
-        }
-    for(i = 0;i < num_priority_receive; i++)
-        {
-            thread_create("receiverPriorityTask", PRI_MAX, &receiverPriorityTask, &aux);
-        }
+    // char aux = 'n';
+    // int i;
+    // for(i = 0;i < num_tasks_send; i++)
+    //     {
+    //         thread_create("senderTask", PRI_DEFAULT, &senderTask, &aux);
+    //     }
+    // for(i = 0;i < num_task_receive; i++)
+    //     {
+    //         thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, &aux);
+    //     }
+    // for(i = 0;i < num_priority_send; i++)
+    //     {
+    //         thread_create("senderPriorityTask", PRI_MAX, &receiverTask, &aux);
+    //     }
+    // for(i = 0;i < num_priority_receive; i++)
+    //     {
+    //         thread_create("receiverPriorityTask", PRI_MAX, &receiverPriorityTask, &aux);
+    //     }
 
 
 }
