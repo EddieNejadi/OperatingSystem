@@ -94,26 +94,26 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
 
 /* Normal task,  sending data to the accelerator */
 void senderTask(void *aux UNUSED){
-        task_t task = {SENDER, NORMAL};
-        oneTask(task);
+    task_t task = {SENDER, NORMAL};
+    oneTask(task);
 }
 
 /* High priority task, sending data to the accelerator */
 void senderPriorityTask(void *aux UNUSED){
-        task_t task = {SENDER, HIGH};
-        oneTask(task);
+    task_t task = {SENDER, HIGH};
+    oneTask(task);
 }
 
 /* Normal task, reading data from the accelerator */
 void receiverTask(void *aux UNUSED){
-        task_t task = {RECEIVER, NORMAL};
-        oneTask(task);
+    task_t task = {RECEIVER, NORMAL};
+    oneTask(task);
 }
 
 /* High priority task, reading data from the accelerator */
 void receiverPriorityTask(void *aux UNUSED){
-        task_t task = {RECEIVER, HIGH};
-        oneTask(task);
+    task_t task = {RECEIVER, HIGH};
+    oneTask(task);
 }
 
 /* abstract task execution*/
@@ -138,11 +138,11 @@ void transferData(task_t task)
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    printf("Start transfering data into the buss...");
+    printf("Start transfering data into the buss...\n");
     int64_t ticks;
     ticks = (int64_t) random_ulong();
     timer_sleep(ticks);
-    printf("Leaving from the buss...");
+    printf("Leaving from the buss...\n");
     /*leaveSlot(task);*/
 }
 
