@@ -46,6 +46,7 @@ sema_init (struct semaphore *sema, unsigned value)
 {
   ASSERT (sema != NULL);
 
+
   sema->value = value;
   list_init (&sema->waiters);
 }
