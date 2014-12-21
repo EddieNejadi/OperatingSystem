@@ -81,7 +81,7 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
     char aux = 'n';
-    int i;
+    unsigned int i;
     for(i = 0;i < num_priority_send; i++)
         {
             thread_create("senderPriorityTask", PRI_MAX, &receiverTask, &aux);
@@ -154,7 +154,7 @@ void getSlot(task_t task)
     }
     else
     {
-        while ((dir != task->direction || bus->value != 0) &&
+        while ((bus_direction != task->direction || bus->value != 0) &&
             num_of_priorities != 0 && num_of_bus_user >= 3)
         {
             cond_wait (&bus,&monitor_lock);
