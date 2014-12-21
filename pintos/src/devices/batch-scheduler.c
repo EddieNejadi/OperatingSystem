@@ -176,7 +176,7 @@ void transferData(task_t task)
     int wait = 0;
     ticks = (int64_t) random_ulong();
     while(wait < (ticks % 1000))
-        wait ++
+        wait ++;
     /* printf("Start transferring data into the buss...");
     printf("Leaving from the buss...");
     timer_sleep(ticks); */
