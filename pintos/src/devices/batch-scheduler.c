@@ -25,21 +25,12 @@ typedef struct {
 	int priority;
 } task_t;
 
-// static struct semaphore bus;
-// static struct semaphore bus_semaphore_normal;
-// static struct semaphore bus_semaphore_high;
-// static struct semaphore bus_semaphore_direction;
-
-// static struct lock lock_direction;
-// static struct lock lock_priority;
-// static int bus_direction;
-// static int bus_priority;
-
+/* static struct semaphore bus; */
 static struct lock monitor_lock;
-static struct condition has_priority;
-// static struct condition direction;
+static struct condition bus;
 static int num_of_priorities;
-static int dir;  
+static int num_of_bus_user;
+static int bus_direction; 
 
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive);
@@ -64,18 +55,13 @@ void init_bus(void){
     
     /* msg("NOT IMPLEMENTED");*/
     /* FIXME implement */
-   // bus_semaphore = malloc(sizeof(bus_semaphore));  
-    
-    // sema_init(&bus_semaphore_high, BUS_CAPACITY);
-    // sema_init(&bus_semaphore_normal, BUS_CAPACITY);
-    // sema_init(&bus_semaphore_direction, SENDER);
 
-    sema_init(&bus, BUS_CAPACITY);
-    lock_init(&monitor_lock);
-    condition_init(&has_priority);
-    // condition_init(&direction);
+    /* sema_init(&bus, BUS_CAPACITY); */
     num_of_priorities = 0;
-    dir = SENDER;
+    num_of_bus_user = 0;
+    bus_direction = SENDER;
+    lock_init(&monitor_lock);
+    condition_init(&bus);
 }
 
 /*
@@ -147,11 +133,6 @@ void oneTask(task_t task) {
   leaveSlot(task);
 }
 
-static struct lock monitor_lock;
-static struct condition bus;
-static int num_of_priorities;
-static int num_of_bus_user;
-static int bus_direction; 
 
 /* task tries to get slot on the bus subsystem */
 void getSlot(task_t task) 
@@ -173,8 +154,6 @@ void getSlot(task_t task)
     }
     else
     {
-        // sema_down(&bus_semaphore);
-        // lock_acquire (&monitor_lock);
         while ((dir != task->direction || bus->value != 0) &&
             num_of_priorities != 0 && num_of_bus_user >= 3)
         {
