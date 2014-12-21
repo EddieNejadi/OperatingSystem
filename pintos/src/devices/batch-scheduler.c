@@ -45,7 +45,7 @@ void oneTask(task_t task);/*Task requires to use the bus and executes methods be
 void getSlot(task_t task); /* task tries to use slot on the bus */
 void transferData(task_t task); /* task processes data on the bus either sending or receiving based on the direction*/
 void leaveSlot(task_t task); /* task release the slot */
-void init_bus();
+void init_bus(void);
     
 
 /* initializes semaphores */ 
