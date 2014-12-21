@@ -140,7 +140,7 @@ void getSlot(task_t task)
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
     lock_acquire (&monitor_lock);
-    if (*task->priority == HIGH)
+    if (**task->priority == HIGH)
     {
         while ((bus_direction != task->direction || bus->value == 0) &&
             num_of_bus_user >= 3)
