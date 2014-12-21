@@ -61,7 +61,7 @@ void init_bus(void){
     num_of_bus_user = 0;
     bus_direction = SENDER;
     lock_init(&monitor_lock);
-    con_init(&bus);
+    cond_init(&bus);
 }
 
 /*
