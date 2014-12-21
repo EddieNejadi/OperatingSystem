@@ -142,19 +142,19 @@ void getSlot(task_t task)
     lock_acquire (&monitor_lock);
     if (task.priority == HIGH)
     {
-        while ((bus_direction != task->direction || bus->value == 0) &&
+        while ((bus_direction != task.direction || num_of_bus_user != 0) &&
             num_of_bus_user >= 3)
         {
             cond_wait (&bus, &monitor_lock);
         }
         num_of_priorities++;
-        bus_direction = task->direction;
+        bus_direction = task.direction;
         num_of_bus_user++;
         cond_signal(&bus, &monitor_lock);
     }
     else
     {
-        while ((bus_direction != task->direction || bus->value != 0) &&
+        while ((bus_direction != task.direction || num_of_bus_user != 0) &&
             num_of_priorities != 0 && num_of_bus_user >= 3)
         {
             cond_wait (&bus,&monitor_lock);
@@ -186,7 +186,7 @@ void leaveSlot(task_t task)
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
     lock_acquire(&monitor_lock);
-    if (task->priority == HIGH)
+    if (task.priority == HIGH)
     {
         num_of_priorities--;
         num_of_bus_user--;
