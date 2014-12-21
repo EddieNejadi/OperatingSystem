@@ -13,6 +13,8 @@
 #define RECEIVER 1
 #define NORMAL 0
 #define HIGH 1
+#define EMPTY 0
+#define INUSE 1
 
 /*
  *	initialize task with direction and priority
@@ -23,7 +25,21 @@ typedef struct {
 	int priority;
 } task_t;
 
-static struct semaphore bus_semaphore;
+// static struct semaphore bus;
+// static struct semaphore bus_semaphore_normal;
+// static struct semaphore bus_semaphore_high;
+// static struct semaphore bus_semaphore_direction;
+
+// static struct lock lock_direction;
+// static struct lock lock_priority;
+// static int bus_direction;
+// static int bus_priority;
+
+static struct lock monitor_lock;
+static struct condition has_priority;
+// static struct condition direction;
+static int num_of_priorities;
+static int dir;  
 
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive);
@@ -50,8 +66,16 @@ void init_bus(void){
     /* FIXME implement */
    // bus_semaphore = malloc(sizeof(bus_semaphore));  
     
-    sema_init(&bus_semaphore, BUS_CAPACITY);
+    // sema_init(&bus_semaphore_high, BUS_CAPACITY);
+    // sema_init(&bus_semaphore_normal, BUS_CAPACITY);
+    // sema_init(&bus_semaphore_direction, SENDER);
 
+    sema_init(&bus, BUS_CAPACITY);
+    lock_init(&monitor_lock);
+    condition_init(&has_priority);
+    // condition_init(&direction);
+    num_of_priorities = 0;
+    dir = SENDER;
 }
 
 /*
@@ -72,14 +96,6 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
     /* FIXME implement */
     char aux = 'n';
     int i;
-    for(i = 0;i < num_tasks_send; i++)
-        {
-            thread_create("senderTask", PRI_DEFAULT, &senderTask, &aux);
-        }
-    for(i = 0;i < num_task_receive; i++)
-        {
-            thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, &aux);
-        }
     for(i = 0;i < num_priority_send; i++)
         {
             thread_create("senderPriorityTask", PRI_MAX, &receiverTask, &aux);
@@ -87,6 +103,14 @@ void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
     for(i = 0;i < num_priority_receive; i++)
         {
             thread_create("receiverPriorityTask", PRI_MAX, &receiverPriorityTask, &aux);
+        }
+    for(i = 0;i < num_tasks_send; i++)
+        {
+            thread_create("senderTask", PRI_DEFAULT, &senderTask, &aux);
+        }
+    for(i = 0;i < num_task_receive; i++)
+        {
+            thread_create("receiverTask", PRI_DEFAULT, &senderPriorityTask, &aux);
         }
 
 
@@ -123,13 +147,44 @@ void oneTask(task_t task) {
   leaveSlot(task);
 }
 
+static struct lock monitor_lock;
+static struct condition bus;
+static int num_of_priorities;
+static int num_of_bus_user;
+static int bus_direction; 
 
 /* task tries to get slot on the bus subsystem */
 void getSlot(task_t task) 
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    sema_down(&bus_semaphore);
+    lock_acquire (&monitor_lock);
+    if (task->priority == HIGH)
+    {
+        while ((bus_direction != task->direction || bus->value == 0) &&
+            num_of_bus_user >= 3)
+        {
+            cond_wait (&bus, &monitor_lock);
+        }
+        num_of_priorities++;
+        bus_direction = task->direction;
+        num_of_bus_user++;
+        cond_signal(&bus, &monitor_lock);
+    }
+    else
+    {
+        // sema_down(&bus_semaphore);
+        // lock_acquire (&monitor_lock);
+        while ((dir != task->direction || bus->value != 0) &&
+            num_of_priorities != 0 && num_of_bus_user >= 3)
+        {
+            cond_wait (&bus,&monitor_lock);
+        }
+        bus_direction = task->direction;
+        num_of_bus_user++;
+        cond_signal(&bus, &monitor_lock);
+    }
+    lock_release(&monitor_lock);
     /* transferData(task); */
 }
 
@@ -138,7 +193,7 @@ void transferData(task_t task)
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    printf("Start transfering data into the buss...\n");
+    printf("Start transferring data into the buss...\n");
     int64_t ticks;
     ticks = (int64_t) random_ulong();
     timer_sleep(ticks);
@@ -151,5 +206,17 @@ void leaveSlot(task_t task)
 {
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
-    sema_up(&bus_semaphore);
+    lock_acquire(&monitor_lock);
+    if (task->priority == HIGH)
+    {
+        num_of_priorities--;
+        num_of_bus_user--;
+    }
+    else
+    {
+        num_of_bus_user--;
+    }
+    cond_signal(&bus, &monitor_lock);
+    lock_release(&monitor_lock);
 }
+
