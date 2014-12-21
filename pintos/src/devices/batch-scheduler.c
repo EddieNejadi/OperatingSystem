@@ -195,7 +195,7 @@ void leaveSlot(task_t task)
     {
         num_of_bus_user--;
     }
-    cond_signal(&bus, &monitor_lock);
+    cond_broadcast(&bus, &monitor_lock);
     lock_release(&monitor_lock);
 }
 
