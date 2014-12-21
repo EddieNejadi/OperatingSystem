@@ -52,11 +52,6 @@ void leaveSlot(task_t task); /* task release the slot */
 void init_bus(void){ 
  
     random_init((unsigned int)123456789); 
-    
-    /* msg("NOT IMPLEMENTED");*/
-    /* FIXME implement */
-
-    /* sema_init(&bus, BUS_CAPACITY); */
     num_of_priorities = 0;
     num_of_bus_user = 0;
     bus_direction = SENDER;
@@ -78,8 +73,6 @@ void init_bus(void){
 void batchScheduler(unsigned int num_tasks_send, unsigned int num_task_receive,
         unsigned int num_priority_send, unsigned int num_priority_receive)
 {
-    /* msg("NOT IMPLEMENTED");*/
-    /* FIXME implement */
     char aux = 'n';
     unsigned int i;
     for(i = 0;i < num_priority_send; i++)
@@ -137,8 +130,6 @@ void oneTask(task_t task) {
 /* task tries to get slot on the bus subsystem */
 void getSlot(task_t task) 
 {
-    /* msg("NOT IMPLEMENTED"); */
-    /* FIXME implement */
     lock_acquire (&monitor_lock);
     if (task.priority == HIGH)
     {
@@ -170,12 +161,10 @@ void getSlot(task_t task)
 /* task processes data on the bus send/receive */
 void transferData(task_t task) 
 {
-    /* msg("NOT IMPLEMENTED"); */
-    /* FIXME implement */
     int64_t ticks;
     int wait = 0;
     ticks = (int64_t) random_ulong();
-    while(wait < (ticks % 100000))
+    while(wait < (ticks % 100000) )
         wait ++;
     /* printf("Start transferring data into the buss...");
     printf("Leaving from the buss...");
@@ -186,8 +175,7 @@ void transferData(task_t task)
 /* task releases the slot */
 void leaveSlot(task_t task) 
 {
-    /* msg("NOT IMPLEMENTED"); */
-    /* FIXME implement */
+
     lock_acquire(&monitor_lock);
     if (task.priority == HIGH)
     {
