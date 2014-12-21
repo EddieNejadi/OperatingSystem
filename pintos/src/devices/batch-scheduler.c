@@ -173,9 +173,9 @@ void transferData(task_t task)
     /* msg("NOT IMPLEMENTED"); */
     /* FIXME implement */
     printf("Start transferring data into the buss...\n");
-    int64_t ticks;
+    /* int64_t ticks;
     ticks = (int64_t) random_ulong();
-    timer_sleep(ticks);
+    timer_sleep(ticks); */
     printf("Leaving from the buss...\n");
     /*leaveSlot(task);*/
 }
