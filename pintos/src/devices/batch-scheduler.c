@@ -159,7 +159,7 @@ void getSlot(task_t task)
         {
             cond_wait (&bus,&monitor_lock);
         }
-        bus_direction = task->direction;
+        bus_direction = task.direction;
         num_of_bus_user++;
         cond_signal(&bus, &monitor_lock);
     }
