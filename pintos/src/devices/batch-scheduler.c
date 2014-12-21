@@ -45,7 +45,7 @@ void oneTask(task_t task);/*Task requires to use the bus and executes methods be
 void getSlot(task_t task); /* task tries to use slot on the bus */
 void transferData(task_t task); /* task processes data on the bus either sending or receiving based on the direction*/
 void leaveSlot(task_t task); /* task release the slot */
-
+void init_bus();
     
 
 /* initializes semaphores */ 
@@ -162,7 +162,7 @@ void getSlot(task_t task)
 void transferData(task_t task) 
 {
     int64_t ticks;
-    int wait = 0;
+    int wait = task.priority;
     ticks = (int64_t) random_ulong();
     while(wait < (ticks % 100000) )
         wait ++;
